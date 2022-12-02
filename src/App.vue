@@ -80,16 +80,12 @@ export default {
       //let dodecahedronGeometry = new THREE.DodecahedronGeometry(10);
       //let dodecahedronGeometry = new CG(this.vertices);
       const geometry = new ConvexGeometry( points3d );
-      const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ); // TODO Поменять материал
       const mesh = new THREE.Mesh( geometry, material );
       scene.add( mesh );
 
       // eslint-disable-next-line
       function animate() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(window.innerWidth, window.innerHeight);
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
       }
