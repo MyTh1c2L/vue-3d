@@ -1,14 +1,11 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-  </div>
+  <canvas></canvas>
 </template>
-
+  
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+import * as THREE from 'three'
+
+const scene = new THREE.scene();
+
+
 </script>
