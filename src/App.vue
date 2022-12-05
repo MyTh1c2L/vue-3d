@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="getVertices" color="success" class="mr-4 mt-2">
+    <button @click="getBody" color="success" class="mr-4 mt-2">
       Вывести модель
     </button>
   </div>
@@ -20,6 +20,7 @@ export default {
       model: "",
       points: [],
       vertices: [],
+      faces: [],
     };
   },
   methods: {
@@ -30,10 +31,26 @@ export default {
         this.init();
       });
     },
+    getTest1() {
+      axios.get("http://localhost:8080/test1").then((data) => {
+        this.points = data.data.pointsIn;
+        this.vertices = data.data.pointsOut;
+        this.init();
+      });
+    },
+    getBody() {
+      axios.get("http://localhost:8080/getBody").then((data) => {
+        this.points = data.data.pointsIn;
+        this.vertices = data.data.pointsOut;
+        this.faces = data.data.faces;
+        this.init();
+      });
+    },
     init() {
       console.log(this.vertices);
       let camera, scene, renderer;
       scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xaaaaaa);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(window.devicePixelRatio);
@@ -43,46 +60,89 @@ export default {
       // camera
 
       camera = new THREE.PerspectiveCamera(
-        40,
+        90,
         window.innerWidth / window.innerHeight,
         1,
-        1000
+        2000
       );
-      camera.position.set(15, 20, 30);
+      camera.position.set(55, 60, 50);
       scene.add(camera);
 
       // controls
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.maxPolarAngle = Math.PI / 2;
-      // ambient light
 
+      // ambient light
       scene.add(new THREE.AmbientLight(0x222222));
 
       // point light
-
-      const light = new THREE.PointLight(0xffffff, 1);
+      const light = new THREE.PointLight(0xffffff, 0.5);
       camera.add(light);
 
       // helper
-      scene.add(new THREE.AxesHelper(20));
-     
-      // points
-      let points3d = [];
+      scene.add(new THREE.AxesHelper(100));
+
+      // vertices
+      let vertices3d = [];
+      let normals = [];
       for (let i = 0; i < this.vertices.length; i++) {
         let x = this.vertices[i].x;
         let y = this.vertices[i].y;
         let z = this.vertices[i].z;
+        //let vector = new THREE.Vector3(x, y, z);
+        //vertices3d[i] = vector;
+        vertices3d.push(x, y, z);
+        normals.push( 0, 0, 1 );
+      }
+
+      // faces
+      let faces = [];
+      for (let i = 0; i < this.faces.length; i++) {
+        let x = this.faces[i][0];
+        let y = this.faces[i][1];
+        let z = this.faces[i][2];
+        faces.push(x, y, z);
+      }
+
+      /*const geometry = new THREE.BufferGeometry();
+			geometry.setIndex( faces );
+			geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices3d, 3 ) );
+      geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+      const material = new THREE.MeshNormalMaterial();
+      material.opacity = 0.8;
+      material.transparent = true;
+      material.flatShading = true;
+      material.side = THREE.DoubleSide
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);*/
+
+      const geometry = new ConvexGeometry(vertices3d);
+      const material = new THREE.MeshNormalMaterial();
+      material.opacity = 0.4;
+      material.transparent = true;
+      material.flatShading = true;
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      // points
+      let points3d = [];
+      for (let i = 0; i < this.points.length; i++) {
+        let x = this.points[i].x;
+        let y = this.points[i].y;
+        let z = this.points[i].z;
         let vector = new THREE.Vector3(x, y, z);
         points3d[i] = vector;
       }
-      console.log(points3d)
 
-      //let dodecahedronGeometry = new THREE.DodecahedronGeometry(10);
-      //let dodecahedronGeometry = new CG(this.vertices);
-      const geometry = new ConvexGeometry( points3d );
-      const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ); // TODO Поменять материал
-      const mesh = new THREE.Mesh( geometry, material );
-      scene.add( mesh );
+      /*scene.add(
+        new THREE.Points(
+          new THREE.BufferGeometry().setFromPoints(points3d),
+          new THREE.PointsMaterial({
+            color: 0x000000,
+            size: 1,
+          })
+        )
+      );*/
 
       // eslint-disable-next-line
       function animate() {
@@ -91,6 +151,6 @@ export default {
       }
       animate();
     },
-  },
+  }
 };
 </script>
