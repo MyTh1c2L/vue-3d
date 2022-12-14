@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="getBody" color="success" class="mr-4 mt-2">
+    <button @click="getTest1" color="success" class="mr-4 mt-2">
       Вывести модель
     </button>
   </div>
@@ -35,6 +35,7 @@ export default {
       axios.get("http://localhost:8080/test1").then((data) => {
         this.points = data.data.pointsIn;
         this.vertices = data.data.pointsOut;
+        this.faces = data.data.faces;
         this.init();
       });
     },
@@ -47,7 +48,6 @@ export default {
       });
     },
     init() {
-      console.log(this.vertices);
       let camera, scene, renderer;
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0xaaaaaa);
@@ -84,15 +84,15 @@ export default {
 
       // vertices
       let vertices3d = [];
-      let normals = [];
+      //let normals = [];
       for (let i = 0; i < this.vertices.length; i++) {
         let x = this.vertices[i].x;
         let y = this.vertices[i].y;
         let z = this.vertices[i].z;
-        //let vector = new THREE.Vector3(x, y, z);
-        //vertices3d[i] = vector;
-        vertices3d.push(x, y, z);
-        normals.push( 0, 0, 1 );
+        let vector = new THREE.Vector3(x, y, z);
+        vertices3d[i] = vector;
+        //vertices3d.push(x, y, z);
+        //normals.push( 0, 0, 1 );
       }
 
       // faces
@@ -124,6 +124,16 @@ export default {
       const mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
 
+      scene.add(
+        new THREE.Points(
+          new THREE.BufferGeometry().setFromPoints(vertices3d),
+          new THREE.PointsMaterial({
+            color: 0xFA8072,
+            size: 0.1,
+          })
+        )
+      );
+
       // points
       let points3d = [];
       for (let i = 0; i < this.points.length; i++) {
@@ -134,15 +144,15 @@ export default {
         points3d[i] = vector;
       }
 
-      /*scene.add(
+      scene.add(
         new THREE.Points(
           new THREE.BufferGeometry().setFromPoints(points3d),
           new THREE.PointsMaterial({
             color: 0x000000,
-            size: 1,
+            size: 0.1,
           })
         )
-      );*/
+      );
 
       // eslint-disable-next-line
       function animate() {
