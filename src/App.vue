@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="getTest1" color="success" class="mr-4 mt-2">
+    <button @click="init" color="success" class="mr-4 mt-2">
       Вывести модель
     </button>
   </div>
@@ -47,41 +47,7 @@ export default {
         this.init();
       });
     },
-    init() {
-      let camera, scene, renderer;
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xaaaaaa);
-
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
-
-      // camera
-
-      camera = new THREE.PerspectiveCamera(
-        90,
-        window.innerWidth / window.innerHeight,
-        1,
-        2000
-      );
-      camera.position.set(55, 60, 50);
-      scene.add(camera);
-
-      // controls
-      const controls = new OrbitControls(camera, renderer.domElement);
-      controls.maxPolarAngle = Math.PI / 2;
-
-      // ambient light
-      scene.add(new THREE.AmbientLight(0x222222));
-
-      // point light
-      const light = new THREE.PointLight(0xffffff, 0.5);
-      camera.add(light);
-
-      // helper
-      scene.add(new THREE.AxesHelper(100));
-
+    /*verticesFunc() {
       // vertices
       let vertices3d = [];
       //let normals = [];
@@ -104,7 +70,7 @@ export default {
         faces.push(x, y, z);
       }
 
-      /*const geometry = new THREE.BufferGeometry();
+      const geometry = new THREE.BufferGeometry();
 			geometry.setIndex( faces );
 			geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices3d, 3 ) );
       geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
@@ -114,7 +80,7 @@ export default {
       material.flatShading = true;
       material.side = THREE.DoubleSide
       const mesh = new THREE.Mesh(geometry, material);
-      scene.add(mesh);*/
+      scene.add(mesh);
 
       const geometry = new ConvexGeometry(vertices3d);
       const material = new THREE.MeshNormalMaterial();
@@ -153,6 +119,73 @@ export default {
           })
         )
       );
+
+      // eslint-disable-next-line
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+      animate();
+    },*/
+    init() {
+      let camera, scene, renderer;
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xaaaaaa);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // camera
+
+      camera = new THREE.PerspectiveCamera(
+        90,
+        window.innerWidth / window.innerHeight,
+        1,
+        2000
+      );
+      camera.position.set(55, 60, 50);
+      scene.add(camera);
+
+      // controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.maxPolarAngle = Math.PI / 2;
+
+      // ambient light
+      scene.add(new THREE.AmbientLight(0x222222));
+
+      // point light
+      const light = new THREE.PointLight(0xffffff, 0.5);
+      camera.add(light);
+
+      // helper
+      scene.add(new THREE.AxesHelper(100));
+
+      // vertices
+      let vertices3d = [
+        new THREE.Vector3(5, 5, 5),
+        new THREE.Vector3(5, -5, 5),
+        new THREE.Vector3(-5, -5, 5),
+        new THREE.Vector3(-5, 5, 5),
+        new THREE.Vector3(5, 5, -5),
+        new THREE.Vector3(5, -5, -5),
+        new THREE.Vector3(-5, -5, -5),
+        new THREE.Vector3(-5, 5, -5),
+        new THREE.Vector3(0, 10, 0)
+      ];
+
+      const geometry = new ConvexGeometry(vertices3d);
+      console.log(geometry);
+      const material = new THREE.MeshNormalMaterial();
+      material.opacity = 0.4;
+      material.transparent = true;
+      material.flatShading = true;
+      const mesh = new THREE.Mesh(geometry, material);
+      console.log(mesh)
+      scene.add(mesh);
+
+
 
       // eslint-disable-next-line
       function animate() {
