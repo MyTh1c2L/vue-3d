@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="getTest1" color="success" class="mr-4 mt-2">
+    <button @click="init" color="success" class="mr-4 mt-2">
       Вывести модель
     </button>
   </div>
@@ -8,45 +8,29 @@
 </template>
   
 <script>
-import axios from "axios";
+/* eslint-disable */
 import * as THREE from "three";
-//import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils";
+
+import Vertices from "./vertices.js";
+import Normals from "./normals.js";
+import Indices from "./indices.js";
+
+import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils";
 import { ConvexGeometry } from "three/examples/jsm/geometries/ConvexGeometry";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { BufferGeometry } from 'three';
+
 export default {
   name: "App",
   data() {
     return {
-      model: "",
-      points: [],
-      vertices: [],
-      faces: [],
+      pointsOrig: [],
+      pointsCH: [],
+      indicesOrig: [],
+      indicesCH: [],
     };
   },
   methods: {
-    getVertices() {
-      axios.get("http://localhost:8080/getPoints").then((data) => {
-        this.points = data.data.pointsIn;
-        this.vertices = data.data.pointsOut;
-        this.init();
-      });
-    },
-    getTest1() {
-      axios.get("http://localhost:8080/test1").then((data) => {
-        this.points = data.data.pointsIn;
-        this.vertices = data.data.pointsOut;
-        this.faces = data.data.faces;
-        this.init();
-      });
-    },
-    getBody() {
-      axios.get("http://localhost:8080/getBody").then((data) => {
-        this.points = data.data.pointsIn;
-        this.vertices = data.data.pointsOut;
-        this.faces = data.data.faces;
-        this.init();
-      });
-    },
     init() {
       let camera, scene, renderer;
       scene = new THREE.Scene();
@@ -62,15 +46,15 @@ export default {
       camera = new THREE.PerspectiveCamera(
         90,
         window.innerWidth / window.innerHeight,
-        1,
-        2000
+        0.1,
+        200000
       );
-      camera.position.set(55, 60, 50);
+      camera.position.set(12000, 3000, 874);
       scene.add(camera);
 
       // controls
       const controls = new OrbitControls(camera, renderer.domElement);
-      controls.maxPolarAngle = Math.PI / 2;
+      controls.maxPolarAngle = Math.PI;
 
       // ambient light
       scene.add(new THREE.AmbientLight(0x222222));
@@ -83,40 +67,25 @@ export default {
       scene.add(new THREE.AxesHelper(100));
 
       // vertices
-      let vertices3d = [];
-      //let normals = [];
-      for (let i = 0; i < this.vertices.length; i++) {
-        let x = this.vertices[i].x;
-        let y = this.vertices[i].y;
-        let z = this.vertices[i].z;
-        let vector = new THREE.Vector3(x, y, z);
-        vertices3d[i] = vector;
-        //vertices3d.push(x, y, z);
-        //normals.push( 0, 0, 1 );
-      }
+      let points = Vertices.getVertices()
 
-      // faces
-      let faces = [];
-      for (let i = 0; i < this.faces.length; i++) {
-        let x = this.faces[i][0];
-        let y = this.faces[i][1];
-        let z = this.faces[i][2];
-        faces.push(x, y, z);
-      }
+      // let vertices3d = Vertices.getVertices()
+      // let normals = Normals.getNormals()
+      // let faces = Indices.getIndex()
 
-      /*const geometry = new THREE.BufferGeometry();
-			geometry.setIndex( faces );
-			geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices3d, 3 ) );
-      geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
-      const material = new THREE.MeshNormalMaterial();
-      material.opacity = 0.8;
-      material.transparent = true;
-      material.flatShading = true;
-      material.side = THREE.DoubleSide
-      const mesh = new THREE.Mesh(geometry, material);
-      scene.add(mesh);*/
+      // const geometry = new THREE.BufferGeometry();
+			// geometry.setIndex( faces );
+			// geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices3d, 3 ) );
+      // geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+      // const material = new THREE.MeshNormalMaterial();
+      // material.opacity = 0.8;
+      // material.transparent = true;
+      // material.flatShading = true;
+      // material.side = THREE.DoubleSide
+      // const mesh = new THREE.Mesh(geometry, material);
+      // scene.add(mesh);
 
-      const geometry = new ConvexGeometry(vertices3d);
+      const geometry = new ConvexGeometry(points);
       const material = new THREE.MeshNormalMaterial();
       material.opacity = 0.4;
       material.transparent = true;
@@ -124,35 +93,55 @@ export default {
       const mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
 
-      scene.add(
-        new THREE.Points(
-          new THREE.BufferGeometry().setFromPoints(vertices3d),
-          new THREE.PointsMaterial({
-            color: 0xFA8072,
-            size: 0.1,
-          })
-        )
-      );
+      // for (let i = 0; i < this.indicesCH.length; i+=3) {
+      //   let position = new Float32Array([
+      //     this.pointsCH[this.indicesCH[i] * 3], this.pointsCH[this.indicesCH[i] * 3 + 1], this.pointsCH[this.indicesCH[i] * 3 + 2],
+      //     this.pointsCH[this.indicesCH[i + 1] * 3], this.pointsCH[this.indicesCH[i + 1] * 3 + 1], this.pointsCH[this.indicesCH[i + 1] * 3 + 2],
+      //     this.pointsCH[this.indicesCH[i + 2] * 3], this.pointsCH[this.indicesCH[i + 2] * 3 + 1], this.pointsCH[this.indicesCH[i + 2] * 3 + 2]
+      //   ]);
+
+      //   console.log(this.indicesCH[i])
+      //   console.log(this.indicesCH[i + 1])
+      //   console.log(this.indicesCH[i + 2])
+
+      //   const geometry = new BufferGeometry();
+      //   geometry.attributes.position = new THREE.BufferAttribute(position, 3);
+
+      //   //let faces = [ 0, 1, 2 ];
+      //   //geometry.setIndex(faces);
+
+      //   console.log(geometry.attributes.position)
+
+      //   let mesh = new THREE.Mesh(
+      //     geometry,
+      //     new THREE.MeshPhongMaterial({ 
+      //       color: Math.random() * 0xffffff,
+      //       side: THREE.DoubleSide,
+      //       opacity: 0.4,
+      //       transparent: true,
+      //       flatShading: true
+      //     })
+      //   );
+      //   scene.add(mesh);
+      // }
 
       // points
-      let points3d = [];
-      for (let i = 0; i < this.points.length; i++) {
-        let x = this.points[i].x;
-        let y = this.points[i].y;
-        let z = this.points[i].z;
-        let vector = new THREE.Vector3(x, y, z);
-        points3d[i] = vector;
-      }
+      // let points3d = [];
+      // let j2 = 0;
+      // for (let i = 0; i < this.pointsCH.length; i += 3) {
+      //   points3d[j2] = new THREE.Vector3(this.pointsCH[i], this.pointsCH[i + 1], this.pointsCH[i + 2]);
+      //   j2++;
+      // }
 
-      scene.add(
-        new THREE.Points(
-          new THREE.BufferGeometry().setFromPoints(points3d),
-          new THREE.PointsMaterial({
-            color: 0x000000,
-            size: 0.1,
-          })
-        )
-      );
+      // scene.add(
+      //   new THREE.Points(
+      //     new THREE.BufferGeometry().setFromPoints(points3d),
+      //     new THREE.PointsMaterial({
+      //       color: 0x000000,
+      //       size: 10,
+      //     })
+      //   )
+      // );
 
       // eslint-disable-next-line
       function animate() {
